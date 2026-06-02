@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: day-b
+data:
+  APP_ENV: dev
+  APP_OWNER: remmusss
+  index.html: |
+    <!doctype html>
+    <html lang="en">
+      <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Day B Demo</title>
+      </head>
+      <body>
+        <h1>Day B Demo</h1>
+        <p>Environment: dev</p>
+        <p>Owner: remmusss</p>
+        <p>Served from a Pod behind a Kubernetes Service.</p>
+      </body>
+    </html>
