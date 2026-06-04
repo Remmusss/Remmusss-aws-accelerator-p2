@@ -2,9 +2,6 @@
 
 - Terraform apply result after provisioning the AWS resources.
 ![After apply 1](after_apply_1.png)
-
----
-- Additional Terraform apply output showing the deployment completed successfully.
 ![After apply 2](after_apply_2.png)
 
 ---
@@ -14,3 +11,7 @@
 ---
 - The demo web page served from the EC2 instance after deployment.
 ![Web page](web_ui.png)
+
+---
+- Destroying the stack with `terraform destroy` and confirming deletion of resources.
+![Destroy](destroy_completed.png)
