@@ -1,0 +1,78 @@
+#!/bin/bash
+set -euxo pipefail
+
+exec > >(tee /var/log/lab-bootstrap.log | logger -t lab-bootstrap -s 2>/dev/console) 2>&1
+
+dnf update -y
+dnf install -y docker conntrack iptables socat tar
+
+systemctl enable docker
+systemctl start docker
+
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+rm -f kubectl
+
+curl -Lo /usr/local/bin/minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+chmod +x /usr/local/bin/minikube
+
+mkdir -p /opt/lab/manifests
+
+cat > /opt/lab/manifests/namespace.yaml <<'EOF'
+${namespace_yaml}
+EOF
+
+cat > /opt/lab/manifests/deployment.yaml <<'EOF'
+${deployment_yaml}
+EOF
+
+cat > /opt/lab/manifests/service.yaml <<EOF
+${service_yaml}
+EOF
+
+mkdir -p /root/.kube /root/.minikube
+
+export HOME=/root
+export KUBECONFIG=/root/.kube/config
+export MINIKUBE_HOME=/root/.minikube
+
+minikube start --driver=docker --force --cpus=2 --memory=2200mb
+kubectl apply -f /opt/lab/manifests/namespace.yaml
+kubectl apply -f /opt/lab/manifests/deployment.yaml
+kubectl apply -f /opt/lab/manifests/service.yaml
+
+kubectl wait --namespace lab --for=condition=available deployment/demo-web --timeout=300s
+
+cat > /etc/systemd/system/lab-app-forward.service <<EOF
+[Unit]
+Description=Forward EC2 port ${nodeport} to the Kubernetes service
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+Environment=KUBECONFIG=/root/.kube/config
+Environment=HOME=/root
+Environment=MINIKUBE_HOME=/root/.minikube
+ExecStart=/usr/local/bin/kubectl -n lab port-forward --address 0.0.0.0 svc/demo-web ${nodeport}:80
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl daemon-reload
+systemctl enable lab-app-forward.service
+systemctl start lab-app-forward.service
+
+cat > /usr/local/bin/lab-status.sh <<'EOF'
+#!/bin/bash
+set -euo pipefail
+minikube status
+kubectl get pods -n lab -o wide
+kubectl get svc -n lab
+systemctl status lab-app-forward.service --no-pager
+EOF
+
+chmod +x /usr/local/bin/lab-status.sh
