@@ -1,41 +1,44 @@
 # W8 Lab
 
-## Overview
+## Architecture
 
-Terraform dựng:
-
-- `VPC`, `2 public subnets`, `IGW`, `route table`
-- `1 EC2` chạy `minikube`
-- `1 ALB` public
-- `Security Groups`
-
-App chạy trong Kubernetes:
-
-- `Deployment` `demo-web`
-- `Service` `NodePort`
-
-Luồng truy cập:
-
-`Internet -> ALB:80 -> EC2:32123 -> kubectl port-forward -> Service -> Pod`
+```text
+Internet (HTTP :80)
+    ↓
+ALB public (Multi-AZ)
+├─ Public Subnet A: 10.20.1.0/24 (us-west-2a)
+└─ Public Subnet B: 10.20.2.0/24 (us-west-2b)
+    ↓ HTTP to EC2 host port 32123
+EC2 (t3.medium, public subnet A)
+    ↓ Docker + kubectl + minikube
+minikube cluster
+    ↓ host bridge
+kubectl port-forward svc/demo-web 32123:80
+    ↓
+Kubernetes Service demo-web (NodePort 32123)
+    ↓
+Deployment demo-web
+└─ nginx Pods
+    ↓
+Nginx web page
+```
 
 ## Providers
 
-- `hashicorp/aws`: dựng hạ tầng AWS
-- `hashicorp/random`: sinh suffix unique cho tên resource
+- `hashicorp/aws`
+- `hashicorp/random`
 
-
-## Run
-
-Cấu hình `terraform.tfvars` trước khi chạy.
-
+## Quick Run
 ```powershell
 cd cloud/w8/lab
 
 terraform init
 terraform plan -out tfplan
 terraform apply tfplan
+
 terraform output
 ```
+
 ## Cleanup
 
 ```powershell
