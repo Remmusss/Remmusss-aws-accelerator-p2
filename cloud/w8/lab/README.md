@@ -44,3 +44,11 @@ terraform output
 ```powershell
 terraform destroy
 ```
+
+## Evidence
+
+Apply completed
+![Apply completed](./Evidence/apply_completed.png)
+
+Web page
+![Web page](./Evidence/web_ui.png)
