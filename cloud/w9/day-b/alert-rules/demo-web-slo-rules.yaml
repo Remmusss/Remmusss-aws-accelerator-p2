@@ -1,0 +1,68 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: demo-web-slo-rules
+  namespace: observability
+spec:
+  groups:
+    - name: demo-web.slo
+      rules:
+        - alert: DemoWebHighErrorRate
+          expr: |
+            (
+              sum(rate(http_server_requests_total{service_name="demo-web", status_code=~"5.."}[5m]))
+              /
+              sum(rate(http_server_requests_total{service_name="demo-web"}[5m]))
+            ) > 0.05
+          for: 5m
+          labels:
+            severity: warning
+            slo: availability
+          annotations:
+            summary: demo-web đang vượt ngưỡng lỗi 5xx
+            description: Tỷ lệ lỗi 5xx của demo-web vượt 5% trong 5 phút.
+        - alert: DemoWebHighLatencyP95
+          expr: |
+            histogram_quantile(
+              0.95,
+              sum by (le) (
+                rate(http_server_request_duration_seconds_bucket{service_name="demo-web"}[5m])
+              )
+            ) > 0.5
+          for: 10m
+          labels:
+            severity: warning
+            slo: latency
+          annotations:
+            summary: demo-web có p95 latency cao
+            description: p95 latency của demo-web cao hơn 500ms trong 10 phút.
+        - alert: DemoWebBurnRateFast
+          expr: |
+            (
+              sum(rate(http_server_requests_total{service_name="demo-web", status_code=~"5.."}[5m]))
+              /
+              sum(rate(http_server_requests_total{service_name="demo-web"}[5m]))
+            ) > (14.4 * 0.001)
+          for: 5m
+          labels:
+            severity: critical
+            slo: availability
+            window: fast
+          annotations:
+            summary: demo-web đang đốt error budget rất nhanh
+            description: Fast burn-rate alert theo cửa sổ 5 phút để hỗ trợ auto-abort canary.
+        - alert: DemoWebBurnRateSlow
+          expr: |
+            (
+              sum(rate(http_server_requests_total{service_name="demo-web", status_code=~"5.."}[30m]))
+              /
+              sum(rate(http_server_requests_total{service_name="demo-web"}[30m]))
+            ) > (6 * 0.001)
+          for: 30m
+          labels:
+            severity: warning
+            slo: availability
+            window: slow
+          annotations:
+            summary: demo-web đang đốt error budget kéo dài
+            description: Slow burn-rate alert theo cửa sổ 30 phút để phát hiện suy giảm kéo dài.
