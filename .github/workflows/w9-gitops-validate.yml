@@ -1,0 +1,68 @@
+name: W9 GitOps Validate
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/w9-gitops-validate.yml"
+      - "cloud/w9/day-a/**"
+      - "cloud/w9/day-b/**"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/w9-gitops-validate.yml"
+      - "cloud/w9/day-a/**"
+      - "cloud/w9/day-b/**"
+
+jobs:
+  render-and-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: v1.30.0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install YAML parser
+        run: python -m pip install pyyaml
+
+      - name: Render demo-web manifests
+        run: kubectl kustomize cloud/w9/day-a/manifests/demo-web/overlays/minikube > /tmp/demo-web-rendered.yaml
+
+      - name: Render observability bundle
+        run: kubectl kustomize cloud/w9/day-b > /tmp/day-b-rendered.yaml
+
+      - name: Parse YAML files
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import yaml
+
+          targets = [
+              Path("cloud/w9/day-a/argocd/project.yaml"),
+              Path("cloud/w9/day-a/argocd/root-app.yaml"),
+              *sorted(Path("cloud/w9/day-a/argocd/apps").glob("*.yaml")),
+              Path("/tmp/demo-web-rendered.yaml"),
+              Path("/tmp/day-b-rendered.yaml"),
+          ]
+
+          for target in targets:
+              with open(target, "r", encoding="utf-8") as handle:
+                  list(yaml.safe_load_all(handle))
+              print(f"validated {target}")
+          PY
+
+      - name: Upload rendered manifests
+        if: github.event_name == 'push'
+        uses: actions/upload-artifact@v4
+        with:
+          name: w9-rendered-demo-web
+          path: /tmp/demo-web-rendered.yaml
