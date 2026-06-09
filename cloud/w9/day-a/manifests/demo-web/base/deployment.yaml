@@ -20,20 +20,21 @@ spec:
         app.kubernetes.io/part-of: w9-platform
     spec:
       containers:
-        - name: nginx
-          image: nginx:stable-alpine
+        - name: demo-web
+          image: demo-web-metrics:local
+          imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 80
+            - containerPort: 8000
               name: http
           readinessProbe:
             httpGet:
-              path: /
+              path: /healthz
               port: http
             initialDelaySeconds: 5
             periodSeconds: 5
           livenessProbe:
             httpGet:
-              path: /
+              path: /healthz
               port: http
             initialDelaySeconds: 15
             periodSeconds: 10

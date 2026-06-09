@@ -42,7 +42,7 @@
       "id": 1,
       "targets": [
         {
-          "expr": "sum(rate(http_server_requests_total{service_name=\"demo-web\"}[5m]))",
+          "expr": "sum(rate(demo_web_http_requests_total{app=\"demo-web\"}[5m]))",
           "legendFormat": "request rate",
           "refId": "A"
         }
@@ -86,7 +86,7 @@
       "id": 2,
       "targets": [
         {
-          "expr": "sum(rate(http_server_requests_total{service_name=\"demo-web\",status_code=~\"5..\"}[5m])) / sum(rate(http_server_requests_total{service_name=\"demo-web\"}[5m]))",
+          "expr": "sum(rate(demo_web_http_requests_total{app=\"demo-web\",status_code=~\"5..\"}[5m])) / sum(rate(demo_web_http_requests_total{app=\"demo-web\"}[5m]))",
           "legendFormat": "error rate",
           "refId": "A"
         }
@@ -117,7 +117,7 @@
       "id": 3,
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, sum by (le) (rate(http_server_request_duration_seconds_bucket{service_name=\"demo-web\"}[5m])))",
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(demo_web_http_request_duration_seconds_bucket{app=\"demo-web\"}[5m])))",
           "legendFormat": "p95 latency",
           "refId": "A"
         }
@@ -165,7 +165,7 @@
       "id": 4,
       "targets": [
         {
-          "expr": "sum(rate(http_server_requests_total{service_name=\"demo-web\",status_code=~\"5..\"}[5m])) / sum(rate(http_server_requests_total{service_name=\"demo-web\"}[5m]))",
+          "expr": "sum(rate(demo_web_http_requests_total{app=\"demo-web\",status_code=~\"5..\"}[5m])) / sum(rate(demo_web_http_requests_total{app=\"demo-web\"}[5m]))",
           "legendFormat": "burn-rate proxy",
           "refId": "A"
         }

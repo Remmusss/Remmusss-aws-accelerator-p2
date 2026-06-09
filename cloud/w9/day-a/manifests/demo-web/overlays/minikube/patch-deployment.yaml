@@ -10,7 +10,7 @@ spec:
         observability: enabled
     spec:
       containers:
-        - name: nginx
+        - name: demo-web
           env:
             - name: OTEL_SERVICE_NAME
               value: demo-web

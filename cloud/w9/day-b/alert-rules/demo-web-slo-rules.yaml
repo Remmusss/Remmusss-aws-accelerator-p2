@@ -10,9 +10,9 @@ spec:
         - alert: DemoWebHighErrorRate
           expr: |
             (
-              sum(rate(http_server_requests_total{service_name="demo-web", status_code=~"5.."}[5m]))
+              sum(rate(demo_web_http_requests_total{app="demo-web", status_code=~"5.."}[5m]))
               /
-              sum(rate(http_server_requests_total{service_name="demo-web"}[5m]))
+              sum(rate(demo_web_http_requests_total{app="demo-web"}[5m]))
             ) > 0.05
           for: 5m
           labels:
@@ -26,7 +26,7 @@ spec:
             histogram_quantile(
               0.95,
               sum by (le) (
-                rate(http_server_request_duration_seconds_bucket{service_name="demo-web"}[5m])
+                rate(demo_web_http_request_duration_seconds_bucket{app="demo-web"}[5m])
               )
             ) > 0.5
           for: 10m
@@ -39,9 +39,9 @@ spec:
         - alert: DemoWebBurnRateFast
           expr: |
             (
-              sum(rate(http_server_requests_total{service_name="demo-web", status_code=~"5.."}[5m]))
+              sum(rate(demo_web_http_requests_total{app="demo-web", status_code=~"5.."}[5m]))
               /
-              sum(rate(http_server_requests_total{service_name="demo-web"}[5m]))
+              sum(rate(demo_web_http_requests_total{app="demo-web"}[5m]))
             ) > (14.4 * 0.001)
           for: 5m
           labels:
@@ -54,9 +54,9 @@ spec:
         - alert: DemoWebBurnRateSlow
           expr: |
             (
-              sum(rate(http_server_requests_total{service_name="demo-web", status_code=~"5.."}[30m]))
+              sum(rate(demo_web_http_requests_total{app="demo-web", status_code=~"5.."}[30m]))
               /
-              sum(rate(http_server_requests_total{service_name="demo-web"}[30m]))
+              sum(rate(demo_web_http_requests_total{app="demo-web"}[30m]))
             ) > (6 * 0.001)
           for: 30m
           labels:

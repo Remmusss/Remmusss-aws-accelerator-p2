@@ -3,6 +3,7 @@ kind: Kustomization
 
 resources:
   - manifests/00-namespace.yaml
+  - manifests/demo-web-servicemonitor.yaml
   - otel/collector-configmap.yaml
   - otel/collector-deployment.yaml
   - otel/collector-service.yaml
