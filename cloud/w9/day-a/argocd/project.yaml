@@ -1,0 +1,19 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: w9-platform
+  namespace: argocd
+spec:
+  description: GitOps project for W9 platform and observability assets
+  sourceRepos:
+    - "*"
+  destinations:
+    - namespace: lab
+      server: https://kubernetes.default.svc
+    - namespace: observability
+      server: https://kubernetes.default.svc
+    - namespace: argocd
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: "*"
+      kind: "*"

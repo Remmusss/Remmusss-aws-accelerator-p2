@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: demo-web
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "10"
+spec:
+  project: w9-platform
+  source:
+    repoURL: https://github.com/Remmusss/Remmusss-aws-accelerator-p2.git
+    targetRevision: main
+    path: cloud/w9/day-a/manifests/demo-web/overlays/minikube
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: lab
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

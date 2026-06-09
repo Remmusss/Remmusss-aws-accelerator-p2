@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: lab
+  labels:
+    app.kubernetes.io/part-of: w9-platform
+    environment: lab
