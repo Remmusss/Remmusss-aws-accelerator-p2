@@ -1,1 +1,3 @@
 *.pass
+demo-app/__pycache__/
+demo-app/*.pyc
