@@ -17,12 +17,19 @@ spec:
               sum(rate(flask_http_request_total{namespace="demo", service="api"}[5m]))
             ) or vector(1)
         - alert: ApiSLOViolation
-          expr: api:request_success_rate:5m < 0.95
-          for: 2m
+          expr: |
+            (
+              (
+                sum(rate(flask_http_request_total{namespace="demo", service="api", status!~"5.."}[1m]))
+                /
+                sum(rate(flask_http_request_total{namespace="demo", service="api"}[1m]))
+              ) or vector(1)
+            ) < 0.95
+          for: 30s
           labels:
             severity: page
             service: api
             slo: "95-percent-success-rate"
           annotations:
             summary: "API success-rate SLO is below 95%"
-            description: "api success rate over 5m is {{ $value | humanizePercentage }}. Canary or release should be stopped and rolled back."
+            description: "api fast-burn success rate is {{ $value | humanizePercentage }}. Canary or release should be stopped and rolled back."

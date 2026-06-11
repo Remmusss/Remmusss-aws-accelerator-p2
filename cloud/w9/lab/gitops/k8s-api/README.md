@@ -10,7 +10,7 @@ Release the `api` service through GitOps, measure quality with Prometheus, and l
 
 - GitOps remains the source of truth: every release change is made in `cloud/w9/lab/gitops/k8s-api/api.yaml`, committed, pushed, and synced by Argo CD.
 - The service-level objective is `95% successful HTTP requests over 5 minutes`.
-- `PrometheusRule` records `api:request_success_rate:5m` and fires `ApiSLOViolation` when success rate is below `0.95` for 2 minutes.
+- `PrometheusRule` records `api:request_success_rate:5m` as the SLO signal and fires `ApiSLOViolation` from a 1-minute fast-burn query when success rate is below `0.95` for 30 seconds. The shorter alert window is intentional for a lab demo where the bad canary is aborted quickly.
 - `AnalysisTemplate/api-success-rate` queries Prometheus during rollout steps. A result below `0.95` fails the analysis and Argo Rollouts aborts the canary.
 - The default manifest keeps `ERROR_RATE=0` so the repository converges to a healthy state. To prove auto-abort, create a temporary Git commit with `ERROR_RATE=1`, push it, observe abort, then `git revert` that commit.
 
