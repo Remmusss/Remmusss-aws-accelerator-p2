@@ -7,6 +7,8 @@ on:
       - "cloud/w9/day-a/**"
       - "cloud/w9/day-b/**"
       - "cloud/w9/day-c/**"
+      - "cloud/w9/lab/argocd/**"
+      - "cloud/w9/lab/gitops/fe-be/**"
       - "cloud/w9/lab/gitops/k8s/**"
   push:
     branches:
@@ -16,6 +18,8 @@ on:
       - "cloud/w9/day-a/**"
       - "cloud/w9/day-b/**"
       - "cloud/w9/day-c/**"
+      - "cloud/w9/lab/argocd/**"
+      - "cloud/w9/lab/gitops/fe-be/**"
       - "cloud/w9/lab/gitops/k8s/**"
 
 jobs:
@@ -44,6 +48,9 @@ jobs:
       - name: Render observability bundle
         run: kubectl kustomize cloud/w9/day-b > /tmp/day-b-rendered.yaml
 
+      - name: Render W9 lab FE/BE app
+        run: kubectl kustomize cloud/w9/lab/gitops/fe-be > /tmp/lab-fe-be-rendered.yaml
+
       - name: Parse YAML files
         run: |
           python - <<'PY'
@@ -54,8 +61,11 @@ jobs:
               Path("cloud/w9/day-a/argocd/project.yaml"),
               Path("cloud/w9/day-a/argocd/root-app.yaml"),
               *sorted(Path("cloud/w9/day-a/argocd/apps").glob("*.yaml")),
+              Path("cloud/w9/lab/argocd/root.yaml"),
+              *sorted(Path("cloud/w9/lab/argocd/apps").glob("*.yaml")),
               Path("/tmp/demo-web-rendered.yaml"),
               Path("/tmp/day-b-rendered.yaml"),
+              Path("/tmp/lab-fe-be-rendered.yaml"),
           ]
 
           for target in targets:
@@ -83,5 +93,13 @@ jobs:
           tar -xzf kc.tgz
           sudo mv kubeconform /usr/local/bin/
 
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: v1.30.0
+
+      - name: Render W9 lab FE/BE app
+        run: kubectl kustomize cloud/w9/lab/gitops/fe-be > /tmp/lab-fe-be-rendered.yaml
+
       - name: Validate W9 lab manifests
-        run: kubeconform -strict -summary cloud/w9/lab/gitops/k8s/
+        run: kubeconform -strict -summary cloud/w9/lab/gitops/k8s/ /tmp/lab-fe-be-rendered.yaml
