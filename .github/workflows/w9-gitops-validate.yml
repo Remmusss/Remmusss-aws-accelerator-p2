@@ -6,6 +6,8 @@ on:
       - ".github/workflows/w9-gitops-validate.yml"
       - "cloud/w9/day-a/**"
       - "cloud/w9/day-b/**"
+      - "cloud/w9/day-c/**"
+      - "cloud/w9/lab/gitops/k8s/**"
   push:
     branches:
       - main
@@ -13,6 +15,8 @@ on:
       - ".github/workflows/w9-gitops-validate.yml"
       - "cloud/w9/day-a/**"
       - "cloud/w9/day-b/**"
+      - "cloud/w9/day-c/**"
+      - "cloud/w9/lab/gitops/k8s/**"
 
 jobs:
   render-and-validate:
@@ -66,3 +70,18 @@ jobs:
         with:
           name: w9-rendered-demo-web
           path: /tmp/demo-web-rendered.yaml
+
+  kubeconform-lab:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install kubeconform
+        run: |
+          curl -sSLo kc.tgz https://github.com/yannh/kubeconform/releases/download/v0.6.7/kubeconform-linux-amd64.tar.gz
+          tar -xzf kc.tgz
+          sudo mv kubeconform /usr/local/bin/
+
+      - name: Validate W9 lab manifests
+        run: kubeconform -strict -summary cloud/w9/lab/gitops/k8s/
