@@ -1,0 +1,22 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - namespace.yaml
+  - backend.yaml
+  - frontend.yaml
+configMapGenerator:
+  - name: fe-be-backend-app
+    namespace: demo-fe-be
+    files:
+      - app.py=backend/app.py
+    options:
+      annotations:
+        argocd.argoproj.io/sync-wave: "0"
+  - name: fe-be-frontend-config
+    namespace: demo-fe-be
+    files:
+      - default.conf=frontend/default.conf
+      - index.html=frontend/index.html
+    options:
+      annotations:
+        argocd.argoproj.io/sync-wave: "0"

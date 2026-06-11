@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>W9 GitOps FE/BE</title>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      font-family: Georgia, "Times New Roman", serif;
+      background: radial-gradient(circle at top left, #e6f5ff, transparent 34%),
+        linear-gradient(135deg, #102a43, #243b53);
+      color: #f8fafc;
+    }
+    main {
+      width: min(720px, calc(100% - 32px));
+      padding: 36px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 24px;
+      background: rgba(15, 23, 42, 0.72);
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+    }
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(32px, 6vw, 64px);
+      line-height: 0.95;
+    }
+    pre {
+      overflow: auto;
+      padding: 16px;
+      border-radius: 12px;
+      background: #08111f;
+      color: #b7f7d4;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <p>Argo CD app-of-apps demo</p>
+    <h1>Frontend calls backend through Kubernetes Service</h1>
+    <pre id="result">Loading backend response...</pre>
+  </main>
+  <script>
+    fetch("/api/")
+      .then((response) => response.json())
+      .then((data) => {
+        document.getElementById("result").textContent = JSON.stringify(data, null, 2);
+      })
+      .catch((error) => {
+        document.getElementById("result").textContent = error.toString();
+      });
+  </script>
+</body>
+</html>
