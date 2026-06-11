@@ -12,34 +12,9 @@ spec:
     helm:
       values: |
         alertmanager:
-          config:
-            global:
-              resolve_timeout: 5m
-              smtp_smarthost: smtp.gmail.com:587
-              smtp_from: trandinhminhquan207@gmail.com
-              smtp_auth_username: trandinhminhquan207@gmail.com
-              smtp_auth_password: CHANGE_ME_WITH_GMAIL_APP_PASSWORD
-              smtp_require_tls: true
-            route:
-              receiver: "null"
-              group_by:
-                - alertname
-                - namespace
-                - service
-              group_wait: 15s
-              group_interval: 1m
-              repeat_interval: 30m
-              routes:
-                - receiver: personal-email
-                  matchers:
-                    - namespace="demo"
-                    - alertname=~"Api.*"
-            receivers:
-              - name: "null"
-              - name: personal-email
-                email_configs:
-                  - to: trandinhminhquan207@gmail.com
-                    send_resolved: true
+          alertmanagerSpec:
+            useExistingSecret: true
+            configSecret: alertmanager-private-config
         prometheus:
           prometheusSpec:
             serviceMonitorSelectorNilUsesHelmValues: false

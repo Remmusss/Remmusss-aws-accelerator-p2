@@ -1,6 +1,6 @@
 # Ship Smartly - API release guard
 
-Owner email: trandinhminhquan207@gmail.com
+Owner email: stored outside Git in `monitoring/alertmanager-private-config`.
 
 ## Goal
 
@@ -61,6 +61,18 @@ git push
 
 ## Email alert
 
-Alertmanager is configured in `cloud/w9/lab/argocd/apps/kube-prometheus-stack.yaml` with receiver `personal-email` and target `trandinhminhquan207@gmail.com`.
+Alert routing is configured by a private Alertmanager Secret, not by embedding SMTP credentials or personal email in public Helm values.
 
-Before the email can actually be sent, replace the placeholder SMTP password in the Helm values with a real Gmail app password or another SMTP credential. Do not commit real credentials to a public repository unless this is a throwaway lab account.
+The public repository only references Secret name `monitoring/alertmanager-private-config`. The Secret contains `alertmanager.yaml` with receiver, route, target email, SMTP username, and SMTP app password.
+
+Create `cloud/w9/lab/secrets/.env` locally from `.env.example`, then apply the Secret:
+
+```powershell
+Copy-Item cloud/w9/lab/secrets/.env.example cloud/w9/lab/secrets/.env
+notepad cloud/w9/lab/secrets/.env
+powershell -ExecutionPolicy Bypass -File cloud/w9/lab/secrets/apply-alertmanager-secret.ps1
+```
+
+To change email or password later, edit only the local `.env` file and rerun the script.
+
+This keeps the public repository clean. For a stricter GitOps setup, replace the manual Secret with SealedSecrets, SOPS-encrypted Secret, or External Secrets Operator connected to a secret manager.
