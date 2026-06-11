@@ -92,7 +92,7 @@ metadata:
   name: fe-be-frontend
   namespace: demo-fe-be
   annotations:
-    argocd.argoproj.io/sync-wave: "1"
+    argocd.argoproj.io/sync-wave: "2"
 spec:
   replicas: 2
   selector:
@@ -142,7 +142,7 @@ metadata:
   name: fe-be-frontend
   namespace: demo-fe-be
   annotations:
-    argocd.argoproj.io/sync-wave: "2"
+    argocd.argoproj.io/sync-wave: "3"
 spec:
   type: NodePort
   selector:
