@@ -1,20 +1,20 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: root
+  name: fe-be
   namespace: argocd
 spec:
   project: default
   source:
     repoURL: https://github.com/Remmusss/Remmusss-aws-accelerator-p2.git
     targetRevision: main
-    path: cloud/w9/lab/argocd/apps
+    path: cloud/w9/lab/gitops/fe-be
   destination:
     server: https://kubernetes.default.svc
-    namespace: argocd
+    namespace: demo-fe-be
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
     syncOptions:
-    - CreateNamespace=true
+      - CreateNamespace=true
