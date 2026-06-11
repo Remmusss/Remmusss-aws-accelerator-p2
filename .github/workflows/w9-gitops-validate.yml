@@ -10,6 +10,8 @@ on:
       - "cloud/w9/lab/argocd/**"
       - "cloud/w9/lab/gitops/fe-be/**"
       - "cloud/w9/lab/gitops/k8s/**"
+      - "cloud/w9/lab/gitops/k8s-api/**"
+      - "cloud/w9/lab/app/**"
   push:
     branches:
       - main
@@ -21,6 +23,8 @@ on:
       - "cloud/w9/lab/argocd/**"
       - "cloud/w9/lab/gitops/fe-be/**"
       - "cloud/w9/lab/gitops/k8s/**"
+      - "cloud/w9/lab/gitops/k8s-api/**"
+      - "cloud/w9/lab/app/**"
 
 jobs:
   render-and-validate:
@@ -66,6 +70,7 @@ jobs:
               Path("/tmp/demo-web-rendered.yaml"),
               Path("/tmp/day-b-rendered.yaml"),
               Path("/tmp/lab-fe-be-rendered.yaml"),
+              *sorted(Path("cloud/w9/lab/gitops/k8s-api").glob("*.yaml")),
           ]
 
           for target in targets:

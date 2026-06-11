@@ -1,0 +1,28 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: api-slo-rules
+  namespace: demo
+  labels:
+    app: api
+spec:
+  groups:
+    - name: api.slo
+      rules:
+        - record: api:request_success_rate:5m
+          expr: |
+            (
+              sum(rate(flask_http_request_total{namespace="demo", service="api", status!~"5.."}[5m]))
+              /
+              sum(rate(flask_http_request_total{namespace="demo", service="api"}[5m]))
+            ) or vector(1)
+        - alert: ApiSLOViolation
+          expr: api:request_success_rate:5m < 0.95
+          for: 2m
+          labels:
+            severity: page
+            service: api
+            slo: "95-percent-success-rate"
+          annotations:
+            summary: "API success-rate SLO is below 95%"
+            description: "api success rate over 5m is {{ $value | humanizePercentage }}. Canary or release should be stopped and rolled back."
