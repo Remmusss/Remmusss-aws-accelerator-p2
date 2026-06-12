@@ -25,7 +25,7 @@ spec:
                 sum(rate(flask_http_request_total{namespace="demo", service="api"}[1m]))
               ) or vector(1)
             ) < 0.95
-          for: 30s
+          for: 5s
           labels:
             severity: page
             service: api
