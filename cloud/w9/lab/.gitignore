@@ -1,2 +1,3 @@
 *.pass
 secrets/.env
+prep-qna.md
