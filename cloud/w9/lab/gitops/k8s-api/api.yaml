@@ -26,9 +26,9 @@ spec:
               protocol: TCP
           env:
             - name: ERROR_RATE
-              value: "0.6"
+              value: "0"
             - name: VERSION
-              value: "v13-bad"
+              value: "v14-final"
           readinessProbe:
             httpGet:
               path: /healthz
