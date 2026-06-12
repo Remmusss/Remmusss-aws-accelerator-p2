@@ -7,6 +7,7 @@ metadata:
     app: api
 spec:
   replicas: 4
+  revisionHistoryLimit: 4
   selector:
     matchLabels:
       app: api
@@ -25,9 +26,9 @@ spec:
               protocol: TCP
           env:
             - name: ERROR_RATE
-              value: "0.9"
+              value: "0.6"
             - name: VERSION
-              value: "v12-bad"
+              value: "v13-bad"
           readinessProbe:
             httpGet:
               path: /healthz
