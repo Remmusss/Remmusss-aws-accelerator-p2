@@ -27,6 +27,7 @@ spec:
             ) < 0.95
           for: 0s
           labels:
+            namespace: demo
             severity: page
             service: api
             slo: "95-percent-success-rate"
