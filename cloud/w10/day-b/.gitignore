@@ -1,0 +1,10 @@
+.env
+*.env
+*.key
+cosign.key
+cosign.password
+reports/
+evidence/*.log
+evidence/*.out
+tmp/
+

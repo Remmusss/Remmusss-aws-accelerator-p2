@@ -1,0 +1,7 @@
+evidence/*.log
+evidence/*.out
+evidence/*.png
+evidence/*.jpg
+rendered/
+tmp/
+

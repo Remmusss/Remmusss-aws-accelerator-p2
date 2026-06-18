@@ -1,0 +1,12 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sDisallowLatestTag
+metadata:
+  name: disallow-latest-image-tag
+spec:
+  enforcementAction: deny
+  match:
+    excludedNamespaces: ["kube-system", "gatekeeper-system", "argocd", "monitoring", "external-secrets", "kyverno"]
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+

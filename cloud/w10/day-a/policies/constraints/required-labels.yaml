@@ -1,0 +1,19 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sRequiredW10Labels
+metadata:
+  name: require-w10-workload-labels
+spec:
+  enforcementAction: deny
+  match:
+    excludedNamespaces: ["kube-system", "gatekeeper-system", "argocd", "monitoring", "external-secrets", "kyverno"]
+    kinds:
+      - apiGroups: ["apps"]
+        kinds: ["Deployment", "StatefulSet", "DaemonSet"]
+      - apiGroups: ["batch"]
+        kinds: ["Job", "CronJob"]
+  parameters:
+    labels:
+      - owner
+      - app.kubernetes.io/name
+      - app.kubernetes.io/part-of
+

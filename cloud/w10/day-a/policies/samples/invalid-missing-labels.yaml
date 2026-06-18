@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: invalid-missing-labels
+  namespace: app-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: invalid-missing-labels
+  template:
+    metadata:
+      labels:
+        app: invalid-missing-labels
+    spec:
+      securityContext:
+        runAsNonRoot: true
+      containers:
+        - name: app
+          image: nginx:1.27-alpine
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+

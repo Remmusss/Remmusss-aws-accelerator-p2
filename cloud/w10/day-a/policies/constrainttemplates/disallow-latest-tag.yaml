@@ -1,0 +1,34 @@
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: k8sdisallowlatesttag
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sDisallowLatestTag
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8sdisallowlatesttag
+
+        missing_tag(image) {
+          not contains(image, ":")
+        }
+
+        latest_tag(image) {
+          endswith(image, ":latest")
+        }
+
+        violation[{"msg": msg}] {
+          container := input.review.object.spec.containers[_]
+          missing_tag(container.image)
+          msg := sprintf("container %q image %q must use an explicit immutable tag or digest", [container.name, container.image])
+        }
+
+        violation[{"msg": msg}] {
+          container := input.review.object.spec.containers[_]
+          latest_tag(container.image)
+          msg := sprintf("container %q image %q must not use latest tag", [container.name, container.image])
+        }
+

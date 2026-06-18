@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: app-dev
+  labels:
+    app.kubernetes.io/part-of: w10-platform
+    environment: dev
+

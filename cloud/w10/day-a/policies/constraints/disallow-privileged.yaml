@@ -1,0 +1,12 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sDisallowPrivileged
+metadata:
+  name: disallow-privileged-containers
+spec:
+  enforcementAction: deny
+  match:
+    excludedNamespaces: ["kube-system", "gatekeeper-system", "argocd", "monitoring", "external-secrets", "kyverno"]
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+

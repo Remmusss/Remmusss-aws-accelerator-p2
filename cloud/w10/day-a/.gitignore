@@ -1,0 +1,5 @@
+evidence/*.log
+evidence/*.out
+rendered/
+tmp/
+

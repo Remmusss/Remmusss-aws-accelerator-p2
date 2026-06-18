@@ -1,0 +1,112 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: secret-reader-app
+  namespace: app-dev
+  labels:
+    app.kubernetes.io/name: secret-reader
+    app.kubernetes.io/part-of: w10-platform
+    owner: platform-team
+data:
+  app.py: |
+    import hashlib
+    import json
+    from pathlib import Path
+    from http.server import BaseHTTPRequestHandler, HTTPServer
+
+    SECRET_DIR = Path("/var/run/secrets/demo")
+
+    def secret_hash():
+        values = {}
+        for name in ("username", "password", "apiKey"):
+            path = SECRET_DIR / name
+            values[name] = path.read_text().strip() if path.exists() else "missing"
+        digest = hashlib.sha256(json.dumps(values, sort_keys=True).encode()).hexdigest()
+        return digest[:16]
+
+    class Handler(BaseHTTPRequestHandler):
+        def do_GET(self):
+            body = json.dumps({"secretHash": secret_hash()}).encode()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+
+    HTTPServer(("0.0.0.0", 8080), Handler).serve_forever()
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: secret-reader
+  namespace: app-dev
+  labels:
+    app.kubernetes.io/name: secret-reader
+    app.kubernetes.io/part-of: w10-platform
+    owner: platform-team
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: secret-reader
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: secret-reader
+        app.kubernetes.io/part-of: w10-platform
+        owner: platform-team
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+      containers:
+        - name: app
+          image: python:3.12-alpine
+          command: ["python", "/app/app.py"]
+          ports:
+            - name: http
+              containerPort: 8080
+          volumeMounts:
+            - name: app-code
+              mountPath: /app/app.py
+              subPath: app.py
+              readOnly: true
+            - name: app-secret
+              mountPath: /var/run/secrets/demo
+              readOnly: true
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+      volumes:
+        - name: app-code
+          configMap:
+            name: secret-reader-app
+        - name: app-secret
+          secret:
+            secretName: demo-api-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: secret-reader
+  namespace: app-dev
+  labels:
+    app.kubernetes.io/name: secret-reader
+    app.kubernetes.io/part-of: w10-platform
+    owner: platform-team
+spec:
+  selector:
+    app.kubernetes.io/name: secret-reader
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+
