@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/Remmusss/Remmusss-aws-accelerator-p2.git
+    repoURL: https://github.com/Remmusss/xbrain-w10-temp.git
     targetRevision: main
     path: cloud/w10/lab/rbac
   destination:
