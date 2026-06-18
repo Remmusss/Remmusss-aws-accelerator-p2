@@ -16,6 +16,23 @@ CLI equivalent:
 trivy image --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 ghcr.io/<owner>/<image>:<git-sha>
 ```
 
+This command only works when the target image can actually be pulled.
+
+- If the image is already in local Docker, Trivy can scan it from the Docker daemon.
+- If the image is in GHCR and the package is private, authenticate first:
+
+```powershell
+docker login ghcr.io
+```
+
+- If you do not want to grant local GHCR access, scan in GitHub Actions instead.
+
+If Trivy returns `DENIED: requested access to the resource is denied`, one of these is true:
+
+- the package is private and you are not authenticated,
+- the tag does not exist,
+- the repository owner or image name is wrong.
+
 If PowerShell returns `trivy : The term 'trivy' is not recognized`, install Trivy first:
 
 ```powershell

@@ -250,6 +250,27 @@ Scan image:
 trivy image --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 ghcr.io/<owner>/<image>:<git-sha>
 ```
 
+Lệnh này chỉ chạy được khi image pull được:
+
+- Nếu image đã có trong local Docker, Trivy sẽ scan từ local daemon.
+- Nếu image ở GHCR và package là private, cần đăng nhập trước:
+
+```powershell
+docker login ghcr.io
+```
+
+Nếu lỗi:
+
+```text
+DENIED: requested access to the resource is denied
+```
+
+thì nguyên nhân thường là:
+
+- package private nhưng chưa login,
+- tag không tồn tại,
+- sai `<owner>` hoặc `<image>`.
+
 Ghi kết quả vào:
 
 ```text
@@ -272,7 +293,27 @@ cosign verify `
   ghcr.io/<owner>/<image>:<git-sha>
 ```
 
+Flow này dành cho GitHub Actions OIDC. Không nên coi đây là lệnh local mặc định vì máy local không có GitHub OIDC identity để ký keyless theo mẫu trên.
+
 Key-based:
+
+Nếu làm local theo flow đẩy image lên GHCR rồi mới ký, chạy theo thứ tự này:
+
+```powershell
+# ví dụ dùng app có Dockerfile ở cloud/w9/day-b/demo-app
+Set-Location cloud/w9/day-b/demo-app
+
+$OWNER = "remmusss"
+$TAG = "w10-demo-api:manual-001"
+$IMAGE = "ghcr.io/$OWNER/$TAG"
+
+docker build -t w10-demo-api:local .
+docker tag w10-demo-api:local $IMAGE
+docker login ghcr.io
+docker push $IMAGE
+```
+
+Sau khi image đã tồn tại trên GHCR mới tạo key, ký và verify:
 
 ```powershell
 cosign generate-key-pair
